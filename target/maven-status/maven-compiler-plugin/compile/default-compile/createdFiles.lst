@@ -1,0 +1,6 @@
+com\asistencia\modelo\Profesor.class
+com\asistencia\modelo\IAbmPersona.class
+com\asistencia\principal\Main.class
+com\asistencia\repositorio\RepositorioDeDatos.class
+com\asistencia\modelo\Alumno.class
+com\asistencia\modelo\Persona.class
