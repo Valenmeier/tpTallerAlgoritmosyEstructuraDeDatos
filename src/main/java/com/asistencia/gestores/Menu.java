@@ -75,7 +75,10 @@ public class Menu {
                 System.out.println("2- Añadir " + mostrar + ".");
                 System.out.println("3- Modificar " + mostrar + ".");
                 System.out.println("4- Eliminar " + mostrar + ".");
-                System.out.println("5- Volver atras.");
+                System.out.println("5- Deshacer última operación.");
+                System.out.println("6- Rehacer operación.");
+                System.out.println("7- Volver atras.");
+
                 System.out.print("Selecciona una opción:");
                 int opcion = teclado.nextInt();
                 teclado.nextLine();
@@ -84,10 +87,12 @@ public class Menu {
                     case 2 -> gestorData.agregar(mostrar);
                     case 3 -> gestorData.actualizar(mostrar);
                     case 4 -> gestorData.eliminar(mostrar);
-                    case 5 -> menuAbierto = false;
+                    case 5 -> gestorData.deshacer();
+                    case 6 -> gestorData.rehacer();
+                    case 7 -> menuAbierto = false;
                     default -> System.err.println("----Selecciona una opción válida.----\n");
                 }
-                if (opcion != 5) {
+                if (opcion != 7) {
                     menuAbierto = continuarMenu(mostrar);
                 }
             } catch (Exception e) {

@@ -7,7 +7,7 @@ package com.asistencia.modelo;
 /**
  * @author NCAULA401
  */
-public abstract class Persona {
+public abstract class Persona implements Cloneable {
 
     private String nombre;
     private String apellido;
@@ -60,5 +60,14 @@ public abstract class Persona {
                         ", Apellido='" + apellido + '\'' +
                         ", Dni=" + dni +
                         ", Legajo='" + legajo + '\'';
+    }
+
+    @Override
+    public Persona clone() {
+        try {
+            return (Persona) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

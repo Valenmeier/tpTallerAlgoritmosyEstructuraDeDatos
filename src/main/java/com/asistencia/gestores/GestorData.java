@@ -1,17 +1,17 @@
 package com.asistencia.gestores;
 
-import com.asistencia.modelo.Alumno;
-import com.asistencia.modelo.Materia;
-import com.asistencia.modelo.Persona;
-import com.asistencia.modelo.Profesor;
+import com.asistencia.modelo.*;
 
 import java.util.Scanner;
+import java.util.Stack;
 
 import static com.asistencia.repositorio.RepositorioDeDatos.materias;
 import static com.asistencia.repositorio.RepositorioDeDatos.personas;
 
 public class GestorData {
     private final Scanner teclado = new Scanner(System.in);
+    private final Stack<Operacion> pilaDeshacer = new Stack<>();
+    private final Stack<Operacion> pilaRehacer = new Stack<>();
 
     public void listar() {
         int cantidadPersonas = 0;
@@ -114,10 +114,12 @@ public class GestorData {
                     for (int i = 0; i < personas.length; i++) {
                         if (personas[i] == null) {
                             personas[i] = alumno;
+                            pilaDeshacer.push(new Operacion("alta", null, alumno.clone(), i));
+                            pilaRehacer.clear();
+                            System.out.println("El alumno se ha agregado correctamente.");
                             return;
                         }
                     }
-                    System.out.println("El alumno se ha agregado correctamente.");
                 }
             }
             case "profesores" -> {
@@ -134,10 +136,12 @@ public class GestorData {
                     for (int i = 0; i < personas.length; i++) {
                         if (personas[i] == null) {
                             personas[i] = profesor;
+                            pilaDeshacer.push(new Operacion("alta", null, profesor.clone(), i));
+                            pilaRehacer.clear();
+                            System.out.println("El profesor se ha agregado correctamente.");
                             return;
                         }
                     }
-                    System.out.println("El profesor se ha agregado correctamente.");
                 }
             }
         }
@@ -167,10 +171,11 @@ public class GestorData {
                             System.out.println("Error al eliminar, intentalo nuevamente");
                         }
                     } catch (RuntimeException e) {
-                        System.err.println("Ha ocurrido un error al eliminar, porfavor intente denuevo con numeros válidos.");
+                        System.err.println("Ha ocurrido un error al eliminar, por favor intente de nuevo con números válidos.");
                     }
                 }
             }
+
             case "alumnos" -> {
                 int cantidadAlumnos = 0;
                 for (int i = 0; i < personas.length; i++) {
@@ -186,17 +191,22 @@ public class GestorData {
                     int seleccion = teclado.nextInt();
                     teclado.nextLine();
                     try {
-                        if (personas[(seleccion - 1)] != null) {
-                            personas[(seleccion - 1)] = null;
+                        int index = seleccion - 1;
+                        if (personas[index] != null && personas[index] instanceof Alumno) {
+                            Persona eliminada = personas[index];
+                            personas[index] = null;
+                            pilaDeshacer.push(new Operacion("baja", eliminada.clone(), null, index));
+                            pilaRehacer.clear();
                             System.out.println("Se ha eliminado correctamente");
                         } else {
                             System.out.println("Error al eliminar, intentalo nuevamente");
                         }
                     } catch (RuntimeException e) {
-                        System.err.println("Ha ocurrido un error al eliminar, porfavor intente denuevo con numeros válidos.");
+                        System.err.println("Ha ocurrido un error al eliminar, por favor intente de nuevo con números válidos.");
                     }
                 }
             }
+
             case "profesores" -> {
                 int cantidadProfesores = 0;
                 for (int i = 0; i < personas.length; i++) {
@@ -212,14 +222,18 @@ public class GestorData {
                     int seleccion = teclado.nextInt();
                     teclado.nextLine();
                     try {
-                        if (personas[(seleccion - 1)] != null) {
-                            personas[(seleccion - 1)] = null;
+                        int index = seleccion - 1;
+                        if (personas[index] != null && personas[index] instanceof Profesor) {
+                            Persona eliminada = personas[index];
+                            personas[index] = null;
+                            pilaDeshacer.push(new Operacion("baja", eliminada.clone(), null, index));
+                            pilaRehacer.clear();
                             System.out.println("Se ha eliminado correctamente");
                         } else {
                             System.out.println("Error al eliminar, intentalo nuevamente");
                         }
                     } catch (RuntimeException e) {
-                        System.err.println("Ha ocurrido un error al eliminar, porfavor intente denuevo con numeros válidos.");
+                        System.err.println("Ha ocurrido un error al eliminar, por favor intente de nuevo con números válidos.");
                     }
                 }
             }
@@ -243,16 +257,17 @@ public class GestorData {
                     int seleccion = teclado.nextInt();
                     teclado.nextLine();
                     try {
-                        if (materias[(seleccion - 1)] != null) {
-                            actualizarMateria(materias[(seleccion - 1)]);
+                        if (materias[seleccion - 1] != null) {
+                            actualizarMateria(materias[seleccion - 1]);
                         } else {
                             System.out.println("Error al actualizar, intentalo nuevamente");
                         }
                     } catch (RuntimeException e) {
-                        System.err.println("Ha ocurrido un error al actualizar, porfavor intente denuevo con numeros válidos.");
+                        System.err.println("Ha ocurrido un error al actualizar, por favor intente de nuevo con números válidos.");
                     }
                 }
             }
+
             case "alumnos" -> {
                 int cantidadAlumnos = 0;
                 for (int i = 0; i < personas.length; i++) {
@@ -262,22 +277,29 @@ public class GestorData {
                     }
                 }
                 if (cantidadAlumnos == 0) {
-                    System.out.println("No hay alumnos para eliminar.");
+                    System.out.println("No hay alumnos para actualizar.");
                 } else {
                     System.out.print("Selecciona un alumno de los listados para actualizar:");
                     int seleccion = teclado.nextInt();
                     teclado.nextLine();
                     try {
-                        if (personas[(seleccion - 1)] != null) {
-                            actualizarAlumno((Alumno) personas[(seleccion - 1)]);
+                        int index = seleccion - 1;
+                        if (personas[index] != null && personas[index] instanceof Alumno) {
+                            Persona antes = personas[index].clone();
+                            actualizarAlumno((Alumno) personas[index]);
+                            Persona despues = personas[index].clone();
+                            pilaDeshacer.push(new Operacion("modificacion", antes, despues, index));
+                            pilaRehacer.clear();
+                            System.out.println("Actualización registrada correctamente.");
                         } else {
                             System.out.println("Error al actualizar alumno, intentalo nuevamente");
                         }
                     } catch (RuntimeException e) {
-                        System.err.println("Ha ocurrido un error al actualizar alumno, porfavor intente denuevo con numeros válidos.");
+                        System.err.println("Ha ocurrido un error al actualizar alumno, por favor intente de nuevo con números válidos.");
                     }
                 }
             }
+
             case "profesores" -> {
                 int cantidadProfesores = 0;
                 for (int i = 0; i < personas.length; i++) {
@@ -287,24 +309,31 @@ public class GestorData {
                     }
                 }
                 if (cantidadProfesores == 0) {
-                    System.out.println("No hay profesores para eliminar.");
+                    System.out.println("No hay profesores para actualizar.");
                 } else {
-                    System.out.print("Selecciona un profesor de los listados para eliminar:");
+                    System.out.print("Selecciona un profesor de los listados para actualizar:");
                     int seleccion = teclado.nextInt();
                     teclado.nextLine();
                     try {
-                        if (personas[(seleccion - 1)] != null) {
-                            actualizarProfesor((Profesor) personas[(seleccion - 1)]);
+                        int index = seleccion - 1;
+                        if (personas[index] != null && personas[index] instanceof Profesor) {
+                            Persona antes = personas[index].clone();
+                            actualizarProfesor((Profesor) personas[index]);
+                            Persona despues = personas[index].clone();
+                            pilaDeshacer.push(new Operacion("modificacion", antes, despues, index));
+                            pilaRehacer.clear();
+                            System.out.println("Actualización registrada correctamente.");
                         } else {
-                            System.out.println("Error al eliminar, intentalo nuevamente");
+                            System.out.println("Error al actualizar profesor, intentalo nuevamente");
                         }
                     } catch (RuntimeException e) {
-                        System.err.println("Ha ocurrido un error al eliminar, porfavor intente denuevo con numeros válidos.");
+                        System.err.println("Ha ocurrido un error al actualizar profesor, por favor intente de nuevo con números válidos.");
                     }
                 }
             }
         }
     }
+
 
     private Materia crearMateria() {
         String nombre;
@@ -520,4 +549,37 @@ public class GestorData {
         }
 
     }
+
+    public void deshacer() {
+        if (pilaDeshacer.isEmpty()) {
+            System.out.println("No hay operaciones para deshacer.");
+            return;
+        }
+
+        Operacion op = pilaDeshacer.pop();
+        switch (op.getTipo()) {
+            case "alta" -> personas[op.getIndice()] = null;
+            case "baja" -> personas[op.getIndice()] = op.getEstadoAnterior().clone();
+            case "modificacion" -> personas[op.getIndice()] = op.getEstadoAnterior().clone();
+        }
+        pilaRehacer.push(op);
+        System.out.println("Operación deshecha correctamente.");
+    }
+
+    public void rehacer() {
+        if (pilaRehacer.isEmpty()) {
+            System.out.println("No hay operaciones para rehacer.");
+            return;
+        }
+
+        Operacion op = pilaRehacer.pop();
+        switch (op.getTipo()) {
+            case "alta" -> personas[op.getIndice()] = op.getEstadoNuevo().clone();
+            case "baja" -> personas[op.getIndice()] = null;
+            case "modificacion" -> personas[op.getIndice()] = op.getEstadoNuevo().clone();
+        }
+        pilaDeshacer.push(op);
+        System.out.println("Operación rehecha correctamente.");
+    }
+
 }
