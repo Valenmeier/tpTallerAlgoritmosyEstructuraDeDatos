@@ -4,6 +4,7 @@
  */
 package com.asistencia.repositorio;
 
+import com.asistencia.modelo.Asistencia;
 import com.asistencia.modelo.Materia;
 import com.asistencia.modelo.Persona;
 
@@ -17,6 +18,8 @@ public abstract class RepositorioDeDatos {
     public static Persona[] personas = new Persona[CANTIDAD_REGISTROS];
 
     public static Materia[] materias = new Materia[CANTIDAD_REGISTROS];
+    public static Asistencia[] asistencias = new Asistencia[CANTIDAD_REGISTROS];
+
 
     public static int indice = 0;
 

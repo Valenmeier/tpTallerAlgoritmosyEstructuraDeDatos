@@ -5,6 +5,7 @@ import java.util.Scanner;
 public class Menu {
     Scanner teclado = new Scanner(System.in);
     GestorData gestorData = new GestorData();
+    GestorAsistencia gestorAsistencias = new GestorAsistencia();
 
     public void iniciarMenu() {
         boolean menuAbierto = true;
@@ -13,14 +14,16 @@ public class Menu {
                 System.out.println("\n============== Sistema de Registro de faltas ================");
                 System.out.println("1- Gestionar personas.");
                 System.out.println("2- Gestionar materias.");
-                System.out.println("3- Finalizar programa.");
+                System.out.println("3- Gestionar asistencias.");
+                System.out.println("4- Finalizar programa.");
                 System.out.print("Seleccione una opción:");
                 int opcion = teclado.nextInt();
                 teclado.nextLine();
                 switch (opcion) {
                     case 1 -> gestionarPersonas();
                     case 2 -> menuGeneral("materias");
-                    case 3 -> {
+                    case 3 -> gestionarAsistencias();
+                    case 4 -> {
                         System.out.println("\nFinalizando programa...");
                         menuAbierto = false;
                     }
@@ -65,6 +68,32 @@ public class Menu {
         } while (menuAbierto);
     }
 
+    public void gestionarAsistencias() {
+        boolean menuAbierto = true;
+        do {
+            try {
+                System.out.println("\n============== Gestor de asistencias ===============");
+                System.out.println("1- Registrar asistencia.");
+                System.out.println("2- Listar asistencias.");
+                System.out.println("3- Volver atras.");
+                System.out.print("Selecciona una opción:");
+                int opcion = teclado.nextInt();
+                teclado.nextLine();
+                switch (opcion) {
+                    case 1 -> gestorAsistencias.registrar();
+                    case 2 -> gestorAsistencias.listar();
+                    case 3 -> menuAbierto = false;
+                    default -> System.err.println("----Selecciona una opción válida.----\n");
+                }
+                if (opcion != 3) {
+                    menuAbierto = continuarMenu("Asistencias");
+                }
+            } catch (Exception e) {
+                System.err.println("----Selecciona una opción válida.----\n");
+                teclado.nextLine();
+            }
+        } while (menuAbierto);
+    }
 
     public void menuGeneral(String mostrar) {
         boolean menuAbierto = true;
